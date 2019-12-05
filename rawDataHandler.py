@@ -124,8 +124,8 @@ if __name__ == '__main__':
         print(f"ID:{patientID}; ALL count:{patient.ALLCellsCount()}; HEM count:{patient.HEMCellsCount()} ")
 
     print(f"Patients ID's: {patients.getPatientsIDs()}\n")
-    print(f"ALL - Patients ID's: {patients.getIdsALLPatients()}\n")
-    print(f"HEM - Patients ID's: {patients.getIdsHEMPatients()}\n")
+    print(f"ALL - Patients ID's ({len(patients.getIdsALLPatients())} patients): {patients.getIdsALLPatients()}\n")
+    print(f"HEM - Patients ID's ({len(patients.getIdsHEMPatients())} patients): {patients.getIdsHEMPatients()}\n")
 
     print(f"H28 cells: {patients.getPatientCellsPath('H28')}")
 

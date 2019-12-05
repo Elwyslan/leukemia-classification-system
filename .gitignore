@@ -106,3 +106,11 @@ venv.bak/
 
 # mypy
 .mypy_cache/
+
+gridsearch-results/
+
+autoencoder-feature-extraction/HDF5data/
+
+autoencoder-feature-extraction/Trained-AutoEncoder/
+
+feature-dataframes/

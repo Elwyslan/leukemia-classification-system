@@ -239,7 +239,7 @@ def createDatasets(trainSize, validationSize):
         ALL_HEM_ratio = 0.5
 
     print(f'ALL-HEM ratio in Test dataset: {ALL_HEM_ratio}')
-    #If test dataset is too unbalanced, repeat the process
+    #If TEST dataset is too unbalanced, repeat the process
     if ALL_HEM_ratio < 0.45:
         return createDatasets(trainSize, validationSize)
 
@@ -303,7 +303,8 @@ def createDatasets(trainSize, validationSize):
             img = patLvDiv_train / rndChoice
             try:
                 img = genAugmentedImage(cv2.imread(str(img)))
-            except:
+            except Exception as e:
+                print(str(e))
                 #Logic to keep a balanced dataset (number of ALL cells equal to number of HEM cells)
                 if 'all.bmp' in rndChoice:
                     countALL -= 1
@@ -360,7 +361,8 @@ def createDatasets(trainSize, validationSize):
             img = patLvDiv_valid / rndChoice
             try:
                 img = genAugmentedImage(cv2.imread(str(img)))
-            except:
+            except Exception as e:
+                print(str(e))
                 #Logic to keep a balanced dataset (number of ALL cells equal to number of HEM cells)
                 if 'all.bmp' in rndChoice:
                     countALL -= 1
@@ -394,13 +396,22 @@ def folderData(folderPath):
     folderName = str(folderPath).split('/')[1]
     print(f'Folder Name: {folderName}')
 
-    countALL = countHEM = 0
+    countALL = countHEM = countAugm_ALL_Imgs = countAugm_HEM_Imgs = 0
+    srcALL_Imgs = srcHEM_Imgs = 0
     patientsIDs = []
     for cell in os.listdir(folderPath):
         if 'all.bmp' in cell:
             countALL += 1
+            if 'AugmentedImg' in cell:
+                countAugm_ALL_Imgs += 1
+            else:
+                srcALL_Imgs += 1
         elif 'hem.bmp' in cell:
             countHEM += 1
+            if 'AugmentedImg' in cell:
+                countAugm_HEM_Imgs += 1
+            else:
+                srcHEM_Imgs += 1
 
         if cell.split('_')[0] == 'AugmentedImg':
             patientID = cell.split('_')[3]
@@ -409,15 +420,31 @@ def folderData(folderPath):
         patientsIDs.append(patientID)
     patientsIDs = list(set(patientsIDs))
     patientsIDs.sort()
-    print(f'Number of HEM cells: {countHEM}')
-    print(f'Number of ALL cells: {countALL}')
-    print(f'Patients IDs: {patientsIDs}')
-    print('\n')
+    print(f'Source ALL cells: {srcALL_Imgs}')
+    print(f'Source HEM cells: {srcHEM_Imgs}')
+    print(f'Augmented ALL cells: {countAugm_ALL_Imgs}')
+    print(f'Augmented HEM cells: {countAugm_HEM_Imgs}')
+    print(f'Total of HEM cells: {countHEM}')
+    print(f'Total of ALL cells: {countALL}')
+    print(f'Dataset size: {countALL+countHEM} cells')
+    HEM_IDs = HandlePatients.getIdsHEMPatients()
+    ALL_IDs = HandlePatients.getIdsALLPatients()
+    HEM_IDs = [pId for pId in HEM_IDs if pId in patientsIDs]
+    ALL_IDs = [pId for pId in ALL_IDs if pId in patientsIDs]
+    print(f'\nHealthy Patients IDs ({len(HEM_IDs)} patients): {HEM_IDs}\n')
+    print(f'\nMalignant Patients IDs ({len(ALL_IDs)} patients): {ALL_IDs}\n')
+    print(f'\nPatients IDs ({len(patientsIDs)} patients): {patientsIDs}\n')
+    
     return countALL, countHEM, patientsIDs 
 
 
 if __name__ == '__main__':
-    createDatasets(trainSize=30000, validationSize=10000)
+    #createDatasets(trainSize=40000, validationSize=10000)
+    #folderData(Path('data/augm_patLvDiv_train/'))
+    folderData(Path('data/augm_patLvDiv_valid/'))
+    #folderData(Path('data/patLvDiv_test/'))
+    #30000 = 25Gb
+    #40000 = 31Gb
     """
     folderData(Path('data/augm_patLvDiv_train/'))
     Path('data/augm_patLvDiv_valid/')
@@ -514,4 +541,19 @@ if __name__ == '__main__':
     plt.title("Flip + Rotation + Salt'nPepper noise")
     
     plt.show()
+
+
+    05 dias: segunda 09/12/2019 à sexta 13/12/2019
+    05 dias: segunda 16/12/2019 à sexta 20/12/2019
+
+    24/12/2019 à 01/01/2020: Recesso natalino
+
+    05 dias: segunda 06/01/2020 à sexta 10/01/2020
+    05 dias: segunda 13/01/2020 à sexta 17/01/2019
+    05 dias: segunda 20/01/2020 à sexta 24/01/2019
+    05 dias: segunda 27/01/2020 à sexta 31/01/2020
+    05 dias: segunda 03/02/2020 à sexta 07/02/2020
+
+    35 dias
+
 """
