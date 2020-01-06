@@ -8,7 +8,7 @@ from collections import Counter
 DATASET = Path('augmPatLvDiv')
 TRAIN_DATA_PATH = Path('../data/augm_patLvDiv_train')
 
-def processImg(imgPath, subtractMean, divideStdDev, colorScheme, imgSize):
+def processImg(imgPath, subtractMean, divideStdDev, colorScheme, imgSize, printValues=False):
     #Process RGB Images
     if colorScheme=='rgb':
         #Read Image
@@ -36,8 +36,9 @@ def processImg(imgPath, subtractMean, divideStdDev, colorScheme, imgSize):
             img[:,:,0] = img[:,:,0] / np.std(img[:,:,0])
             img[:,:,1] = img[:,:,1] / np.std(img[:,:,1])
             img[:,:,2] = img[:,:,2] / np.std(img[:,:,2])
-        print('Max:',np.max(img[:,:,0]), np.max(img[:,:,1]), np.max(img[:,:,2]))
-        print('Min:',np.min(img[:,:,0]), np.min(img[:,:,1]), np.min(img[:,:,2]))
+        if printValues:
+            print('Max:',np.max(img[:,:,0]), np.max(img[:,:,1]), np.max(img[:,:,2]))
+            print('Min:',np.min(img[:,:,0]), np.min(img[:,:,1]), np.min(img[:,:,2]))
     #Process Grayscale Images
     elif colorScheme=='gray':
         #Read image
@@ -131,6 +132,7 @@ def createHDF5_train(noOfImages, subtractMean=True, divideStdDev=True, colorSche
     #Store Images
     for n, image in enumerate(images):
         imgPath = '{}/{}'.format(TRAIN_DATA_PATH, image)
+        print(f'{n} - {str(imgPath)}')
         hdf5_file['train_imgs'][n] = processImg(imgPath,
                                                 subtractMean=subtractMean,
                                                 divideStdDev=divideStdDev,
@@ -140,6 +142,6 @@ def createHDF5_train(noOfImages, subtractMean=True, divideStdDev=True, colorSche
     hdf5_file.close()
 
 if __name__ == '__main__':
-    createHDF5_train(noOfImages=500, subtractMean=True, divideStdDev=False, colorScheme='rgb', imgSize=(450,450))
+    createHDF5_train(noOfImages=500, subtractMean=True, divideStdDev=False, colorScheme='rgb', imgSize=(250,250))
 
     print("\nEnd Script!\n{}\n".format('#'*50))

@@ -6,6 +6,7 @@ from keras import backend as K
 from pathlib import Path
 from sklearn.metrics import confusion_matrix
 from sklearn.preprocessing import MinMaxScaler, StandardScaler
+from sklearn.decomposition import PCA
 from collections import Counter
 import time
 import copy
@@ -30,6 +31,8 @@ def prepareData(train_df, valid_df):
     x_valid = valid_df.drop(['cellType(ALL=1, HEM=-1)'], axis=1)
     for col in x_valid.columns:
         x_valid[col] = (x_valid[col] - train_df[col].mean()) / train_df[col].std() #mean=0, std=1
+        if np.isnan(x_valid[col]).any():
+            print(f'NaN in x_valid - {col}')
     x_valid = x_valid.values
 
     #Prepare Train data
@@ -43,6 +46,8 @@ def prepareData(train_df, valid_df):
     x_train = train_df.drop(['cellType(ALL=1, HEM=-1)'], axis=1)
     for col in x_train.columns:
         x_train[col] = (x_train[col] - train_df[col].mean()) / train_df[col].std() #mean=0, std=1
+        if np.isnan(x_train[col]).any():
+            print(f'NaN in x_train - {col}')
     x_train = x_train.values
     return x_train, y_train, x_valid, y_valid
 
@@ -65,9 +70,10 @@ if __name__ == '__main__':
     sgdRuns = []
     for m in momentums:
         for initLR in init_LRs:
-            runName = f'SGD_initLR-{initLR:.4f}_finalLR-{finalLR:.6f}_momentum-{m}'
+            #runName = f'SGD_initLR-{initLR:.4f}_finalLR-{finalLR:.6f}_momentum-{m}'
             #optimizers.SGD(lr=initLR, momentum=m, nesterov=False)
-            sgdRuns.append(('SGD', runName, initLR, m, finalLR))
+            #sgdRuns.append(('SGD', runName, initLR, m, finalLR))
+            pass
 
     #Adadelta gridSearch
     rhos = [0.95]
@@ -76,15 +82,16 @@ if __name__ == '__main__':
     adaDeltaRuns = []
     for rho in rhos:
         for initLR in init_LRs:
-            runName = f'AdaDelta_initLR-{initLR:.4f}_finalLR-{finalLR:.2f}_rho-{rho:.2f}'
+            #runName = f'AdaDelta_initLR-{initLR:.4f}_finalLR-{finalLR:.2f}_rho-{rho:.2f}'
             #optimizers.Adadelta(lr=initLR, rho=rho)
-            adaDeltaRuns.append(('AdaDelta', runName, initLR, rho, finalLR))
+            #adaDeltaRuns.append(('AdaDelta', runName, initLR, rho, finalLR))
+            pass
     
     #ADAM gridSearch
     beta_1s = [0.9]
     beta_2s = [0.999]
-    init_LRs = [0.001]
-    finalLR = 0.0001
+    init_LRs = [0.001, 0.0001]
+    finalLR = 0.000055
     adamRuns = []
     for b1 in beta_1s:
         for b2 in beta_2s:
@@ -130,15 +137,13 @@ if __name__ == '__main__':
     #                                                                                         #
     ###########################################################################################
 
-    
     #Read Train data
-
     print('Reading Train Dataframe...')
-    train_df = pd.read_csv(Path('feature-dataframes/AugmPatLvDiv_TRAIN-AllFeats_1387-Features_40000-images.csv'), index_col=0)
+    train_df = pd.read_csv(Path('feature-dataframes/450x450-images_AugmPatLvDiv_TRAIN_1637-Features_40000-images.csv'), index_col=0)
     print('Done Read Train Dataframe!')
 
     print('Reading Validation Dataframe...')
-    valid_df = pd.read_csv(Path('feature-dataframes/AugmPatLvDiv_VALIDATION-AllFeats_1387-Features_10000-images.csv'), index_col=0)
+    valid_df = pd.read_csv(Path('feature-dataframes/450x450-images_AugmPatLvDiv_VALIDATION_1637-Features_10000-images.csv'), index_col=0)
     print('Done Read Validation Dataframe!')
 
     print('Preparing Data...')
@@ -146,22 +151,20 @@ if __name__ == '__main__':
     x_train, y_train, x_valid, y_valid = prepareData(train_df=train_df, valid_df=valid_df)
     
     print('Done Read Train and Validation data!')
-
+    
     #Load PCA reduction Matrix
-    pca = None
-    with open(Path('feature-dataframes/PCA_ReductionMatrix_ExplainedVariance-0.95_1387-TO-951.pkl'), 'rb') as f:
-        pca = pickle.load(f)
+    #pca = PCA(n_components=0.99, svd_solver='full')
+    #pca.fit(x_train)
     
-    print('PCA reducing input data dimensionality...')
-    x_train = pca.transform(x_train)
-    x_valid = pca.transform(x_valid)
-    print('Input data dimensionality reduced!')
-
-    scaler = StandardScaler()
-    scaler.fit(x_train)
-    x_train = scaler.transform(x_train)
-    x_valid = scaler.transform(x_valid)
+    #print('PCA reducing input data dimensionality...')
+    #x_train = pca.transform(x_train)
+    #x_valid = pca.transform(x_valid)
+    #print('Input data dimensionality reduced!')
     
+    #scaler = StandardScaler()
+    #scaler.fit(x_train)
+    #x_train = scaler.transform(x_train)
+    #x_valid = scaler.transform(x_valid)
 
     ######################################################################################################
     #                                                                                                    #
@@ -207,8 +210,8 @@ if __name__ == '__main__':
 
         return opt, runName, initi_lr, final_lr
 
-    noOfNeurons = [128, 512, 1024, 2048]
-    noOfHiddenLayers = [1, 2, 3]
+    noOfNeurons = [2048]
+    noOfHiddenLayers = [0, 1, 2, 3]
     for n_Neu in noOfNeurons:
         for n_Hidden in noOfHiddenLayers:
             for actFunc in actFuncList:
@@ -242,7 +245,7 @@ if __name__ == '__main__':
                         actName = f'{actFunc[0]}-{actFunc[1]}'
                     else:
                         actName = actFunc
-                    logDir = Path(f'gridsearch-results/{actName}_HLs-{n_Hidden}_NEUs-{n_Neu}_' + runName)
+                    logDir = Path(f'gridsearch-results/PCA-0.99_{actName}_HLs-{n_Hidden}_NEUs-{n_Neu}_' + runName)
                     if not os.path.exists(Path(logDir)):
                         os.mkdir(Path(logDir))
                     else:
@@ -269,8 +272,5 @@ if __name__ == '__main__':
                     K.clear_session()
 
     print(f"\nEnd Script!\n{'#'*50}")
-    #relu_HLs-2_NEUs-2048_Adam_initLR-0.0010_finalLR-0.00010_beta1-0.90_beta2-0.999000
-    #PReLU_HLs-1_NEUs-2048_Adam_initLR-0.0010_finalLR-0.00010_beta1-0.90_beta2-0.999000
-    #tanh_HLs-1_NEUs-2048_Adam_initLR-0.0010_finalLR-0.00010_beta1-0.90_beta2-0.999000
 
-    #Best Network: relu_HLs-2_NEUs-2048_Adam_initLR-0.0010_finalLR-0.00010_beta1-0.90_beta2-0.999000
+    #Best Network: PReLU_HLs-1_NEUs-2048_Adam_initLR-0.0010_finalLR-0.00001_beta1-0.87_beta2-0.999900_L1L2-0.0000010 (1637 features)

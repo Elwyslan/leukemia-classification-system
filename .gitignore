@@ -114,3 +114,13 @@ autoencoder-feature-extraction/HDF5data/
 autoencoder-feature-extraction/Trained-AutoEncoder/
 
 feature-dataframes/
+
+logdir/
+
+models/
+
+modified-Leukonet/HDF5data/
+
+results/
+
+PDFs/

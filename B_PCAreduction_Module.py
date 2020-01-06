@@ -8,7 +8,7 @@ import gc
 if __name__ == '__main__':
 
     print('Reading Training Dataframe...')
-    df = pd.read_csv(Path('feature-dataframes/AugmPatLvDiv_TRAIN-AllFeats_1612-Features_40000-images.csv'), index_col=0)
+    df = pd.read_csv(Path('feature-dataframes/AugmPatLvDiv_TRAIN-AllFeats_1387-Features_40000-images.csv'), index_col=0)
     print('Done Read Training Dataframe!')
     
     y = df['cellType(ALL=1, HEM=-1)']

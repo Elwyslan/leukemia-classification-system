@@ -428,7 +428,7 @@ def extract_DCT_FeatureDict(imagePath):
     elif 'hem.bmp' in imagePath.name:
         features['cellType(ALL=1, HEM=-1)'] = -1
     else:
-        return {}
+        features['cellType(ALL=1, HEM=-1)'] = 0
     feats = computeDCTransform(imagePath)
     for i in range(len(feats)):
         features[f'DCT_pt{str(i).zfill(4)}'] = feats[i]
@@ -441,7 +441,7 @@ def extract_CONTOUR_FeatureDict(imagePath):
     elif 'hem.bmp' in imagePath.name:
         features['cellType(ALL=1, HEM=-1)'] = -1
     else:
-        return features
+        features['cellType(ALL=1, HEM=-1)'] = 0
     img = cv2.cvtColor(cv2.imread(str(imagePath)), cv2.COLOR_BGR2GRAY)
     signature = getContourSignature(img)
     for i in range(len(signature)):
@@ -455,7 +455,7 @@ def extract_MORPH_FeatureDict(imagePath):
     elif 'hem.bmp' in imagePath.name:
         features['cellType(ALL=1, HEM=-1)'] = -1
     else:
-        return {}
+        features['cellType(ALL=1, HEM=-1)'] = 0
 
     srcImg = cv2.imread(str(imagePath))
     grayImg = cv2.cvtColor(srcImg, cv2.COLOR_BGR2GRAY)
@@ -495,33 +495,33 @@ def extract_TEXT_FeatureDict(imgPath):
     elif 'hem.bmp' in imgPath.name:
         featuresDict['cellType(ALL=1, HEM=-1)'] = -1
     else:
-        return {}
+        featuresDict['cellType(ALL=1, HEM=-1)'] = 0
     img = readImage(imgPath,'gray')
 
     height, width = img.shape
-    img45 = cv2.warpAffine(img, cv2.getRotationMatrix2D((width/2,height/2), 45, 1), (width, height))
-    img90 = cv2.warpAffine(img, cv2.getRotationMatrix2D((width/2,height/2), 90, 1), (width, height))
-    img135 = cv2.warpAffine(img, cv2.getRotationMatrix2D((width/2,height/2), 135, 1), (width, height))
+    #img45 = cv2.warpAffine(img, cv2.getRotationMatrix2D((width/2,height/2), 45, 1), (width, height))
+    #img90 = cv2.warpAffine(img, cv2.getRotationMatrix2D((width/2,height/2), 90, 1), (width, height))
+    #img135 = cv2.warpAffine(img, cv2.getRotationMatrix2D((width/2,height/2), 135, 1), (width, height))
 
     features0 = {**getGLCMFeatures(img), **getGLDMFeatures(img),
                  **getGLRLMFeatures(img), **getGLSZMFeatures(img),
                  **getNGTDMFeatures(img)}
-    features45 = {**getGLCMFeatures(img45), **getGLDMFeatures(img45),
-                  **getGLRLMFeatures(img45), **getGLSZMFeatures(img45),
-                  **getNGTDMFeatures(img45)}
-    features90 = {**getGLCMFeatures(img90), **getGLDMFeatures(img90),
-                  **getGLRLMFeatures(img90), **getGLSZMFeatures(img90),
-                  **getNGTDMFeatures(img90)}
-    features135 = {**getGLCMFeatures(img135), **getGLDMFeatures(img135),
-                   **getGLRLMFeatures(img135), **getGLSZMFeatures(img135),
-                   **getNGTDMFeatures(img135)}
+    #features45 = {**getGLCMFeatures(img45), **getGLDMFeatures(img45),
+    #              **getGLRLMFeatures(img45), **getGLSZMFeatures(img45),
+    #              **getNGTDMFeatures(img45)}
+    #features90 = {**getGLCMFeatures(img90), **getGLDMFeatures(img90),
+    #              **getGLRLMFeatures(img90), **getGLSZMFeatures(img90),
+    #              **getNGTDMFeatures(img90)}
+    #features135 = {**getGLCMFeatures(img135), **getGLDMFeatures(img135),
+    #               **getGLRLMFeatures(img135), **getGLSZMFeatures(img135),
+    #               **getNGTDMFeatures(img135)}
     
     featNames = list(features0.keys())
     for i in range(len(features0)):
         featuresDict[f'Texture_0deg_{featNames[i]}'] = features0[featNames[i]]
-        featuresDict[f'Texture_45deg_{featNames[i]}'] = features45[featNames[i]]
-        featuresDict[f'Texture_90deg_{featNames[i]}'] = features90[featNames[i]]
-        featuresDict[f'Texture_135deg_{featNames[i]}'] = features135[featNames[i]]
+    #    featuresDict[f'Texture_45deg_{featNames[i]}'] = features45[featNames[i]]
+    #    featuresDict[f'Texture_90deg_{featNames[i]}'] = features90[featNames[i]]
+    #    featuresDict[f'Texture_135deg_{featNames[i]}'] = features135[featNames[i]]
     return featuresDict
 
 def extract_FOF_FeatureDict(imgPath):
@@ -531,7 +531,7 @@ def extract_FOF_FeatureDict(imgPath):
     elif 'hem.bmp' in imgPath.name:
         featuresDict['cellType(ALL=1, HEM=-1)'] = -1
     else:
-        return {}
+        featuresDict['cellType(ALL=1, HEM=-1)'] = 0
     img = readImage(imgPath,'rgb')
     r, g, b = cv2.split(img)
     h, s, v = cv2.split(cv2.cvtColor(img, cv2.COLOR_RGB2HSV))
@@ -628,21 +628,21 @@ def createAugmPatLvDivDataframe():
         test_df.to_csv(f'feature-dataframes/PatLvDiv_TEST-AllFeats_{test_df.shape[1]-1}-Features_{test_df.shape[0]}-images.csv')
     
     p0 = multiprocessing.Process(name='train_AugmPatLvDiv', target=createTrainDataframe)
-    p1 = multiprocessing.Process(name='valid_AugmPatLvDiv',target=createValidDataframe)
-    p2 = multiprocessing.Process(name='test_PatLvDiv',target=createTestDataframe)
+    #p1 = multiprocessing.Process(name='valid_AugmPatLvDiv',target=createValidDataframe)
+    #p2 = multiprocessing.Process(name='test_PatLvDiv',target=createTestDataframe)
     p0.start()
-    p1.start()
-    p2.start()
+    #p1.start()
+    #p2.start()
     p0.join()
-    p1.join()
-    p2.join()
+    #p1.join()
+    #p2.join()
 
 
 
 if __name__ == '__main__':
-    #p0 = multiprocessing.Process(name='AugmPatLvDiv', target=createAugmPatLvDivDataframe)
-    #p0.start()
-    #p0.join()
+    p0 = multiprocessing.Process(name='AugmPatLvDiv', target=createAugmPatLvDivDataframe)
+    p0.start()
+    p0.join()
     print(f"\nEnd Script!\n{'#'*50}")
 
 

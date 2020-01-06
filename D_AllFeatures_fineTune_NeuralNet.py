@@ -15,6 +15,7 @@ import numpy as np
 import pandas as pd
 import pickle
 
+
 ALL_LABEL = [1.0, 0.0]
 HEM_LABEL = [0.0, 1.0]
 
@@ -57,34 +58,13 @@ if __name__ == '__main__':
     #   ####     #           #      #    #    #    #    ######    ######    #    #     ####   #
     #                                                                                         #
     ###########################################################################################
-
-    #SGD gridSearch
-    momentums = [0.0]
-    init_LRs = [0.01]
-    finalLR = 0.001
-    sgdRuns = []
-    for m in momentums:
-        for initLR in init_LRs:
-            runName = f'SGD_initLR-{initLR:.4f}_finalLR-{finalLR:.6f}_momentum-{m}'
-            #optimizers.SGD(lr=initLR, momentum=m, nesterov=False)
-            sgdRuns.append(('SGD', runName, initLR, m, finalLR))
-
-    #Adadelta gridSearch
-    rhos = [0.95]
-    init_LRs = [1.0]
-    finalLR = 0.1
-    adaDeltaRuns = []
-    for rho in rhos:
-        for initLR in init_LRs:
-            runName = f'AdaDelta_initLR-{initLR:.4f}_finalLR-{finalLR:.2f}_rho-{rho:.2f}'
-            #optimizers.Adadelta(lr=initLR, rho=rho)
-            adaDeltaRuns.append(('AdaDelta', runName, initLR, rho, finalLR))
     
     #ADAM gridSearch
-    beta_1s = [0.9]
-    beta_2s = [0.999]
-    init_LRs = [0.001]
-    finalLR = 0.0001
+    beta_1s = [0.87]
+    beta_2s = [0.9985]
+    init_LRs = [0.0001]
+    finalLR = 0.00001
+    kernelReg = regularizers.l1_l2(l1=0.00001, l2=0.00001)
     adamRuns = []
     for b1 in beta_1s:
         for b2 in beta_2s:
@@ -93,7 +73,7 @@ if __name__ == '__main__':
                 #opt = optimizers.Adam(lr=initLR, beta_1=b1, beta_2=b2, amsgrad=False)
                 adamRuns.append(('Adam', runName, initLR, b1, b2, finalLR))
 
-    optsList = adamRuns + adaDeltaRuns + sgdRuns
+    optsList = adamRuns # + adaDeltaRuns + sgdRuns
 
     ###########################################################################################################################################
     #                                                                                                                                         #
@@ -107,17 +87,7 @@ if __name__ == '__main__':
     #                                                                                                                                         #
     ###########################################################################################################################################
 
-    actFuncList = ['relu', 'PReLU', 'tanh']
-
-    leakyRelu_alphas = [0.01, 0.005, 0.001]
-    for alpha in leakyRelu_alphas:
-        #actFuncList.append(('LeakyReLU', alpha))
-        pass
-
-    elu_alphas = [1.1, 1.0, 0.9]
-    for alpha in elu_alphas:
-        #actFuncList.append(('ELU', alpha))
-        pass
+    actFuncList = ['relu']
 
     ###########################################################################################
     #                                                                                         #
@@ -148,19 +118,20 @@ if __name__ == '__main__':
     print('Done Read Train and Validation data!')
 
     #Load PCA reduction Matrix
-    pca = None
-    with open(Path('feature-dataframes/PCA_ReductionMatrix_ExplainedVariance-0.95_1387-TO-951.pkl'), 'rb') as f:
-        pca = pickle.load(f)
+    #pca = None
+    #with open(Path('feature-dataframes/PCA_ReductionMatrix_ExplainedVariance-0.95_1612-TO-940.pkl'), 'rb') as f:
+    #    pca = pickle.load(f)
     
-    print('PCA reducing input data dimensionality...')
-    x_train = pca.transform(x_train)
-    x_valid = pca.transform(x_valid)
-    print('Input data dimensionality reduced!')
+    #print('PCA reducing input data dimensionality...')
+    #x_train = pca.transform(x_train)
+    #x_valid = pca.transform(x_valid)
+    #print('Input data dimensionality reduced!')    
 
-    scaler = StandardScaler()
-    scaler.fit(x_train)
-    x_train = scaler.transform(x_train)
-    x_valid = scaler.transform(x_valid)
+    #skLearnScaler = MinMaxScaler(feature_range=(-1, 1)) #skLearnScaler = StandardScaler()
+    #skLearnScaler = StandardScaler()
+    #skLearnScaler.fit(x_train)
+    #x_train = skLearnScaler.transform(x_train)
+    #x_valid = skLearnScaler.transform(x_valid)
     
 
     ######################################################################################################
@@ -207,8 +178,8 @@ if __name__ == '__main__':
 
         return opt, runName, initi_lr, final_lr
 
-    noOfNeurons = [128, 512, 1024, 2048]
-    noOfHiddenLayers = [1, 2, 3]
+    noOfNeurons = [2048]
+    noOfHiddenLayers = [2]
     for n_Neu in noOfNeurons:
         for n_Hidden in noOfHiddenLayers:
             for actFunc in actFuncList:
@@ -216,16 +187,16 @@ if __name__ == '__main__':
                     #Create Model
                     model = Sequential()
                     #Input Layer
-                    model.add(Dense(n_Neu, input_shape=(x_train.shape[1],)))
+                    model.add(Dense(n_Neu, input_shape=(x_train.shape[1],), kernel_regularizer=kernelReg))
                     model.add(getActivationFunction(actFunc))
                     model.add(Dropout(0.5))
                     #Hidden Layers
                     for _ in range(n_Hidden):
-                        model.add(Dense(n_Neu))
+                        model.add(Dense(n_Neu, kernel_regularizer=kernelReg))
                         model.add(getActivationFunction(actFunc))
                         model.add(Dropout(0.5))
                     #Output Layer
-                    model.add(Dense(2, activation='softmax'))
+                    model.add(Dense(2, activation='softmax', kernel_regularizer=kernelReg))
                     #Set Backpropagation Optimizer
                     opt, runName, initi_lr, final_lr = getOptimizer(optChoice)
                     model.compile(loss='categorical_crossentropy',
@@ -243,6 +214,7 @@ if __name__ == '__main__':
                     else:
                         actName = actFunc
                     logDir = Path(f'gridsearch-results/{actName}_HLs-{n_Hidden}_NEUs-{n_Neu}_' + runName)
+                    logDir = Path(str(logDir) + '_L1L2-0.00001')
                     if not os.path.exists(Path(logDir)):
                         os.mkdir(Path(logDir))
                     else:
@@ -269,8 +241,5 @@ if __name__ == '__main__':
                     K.clear_session()
 
     print(f"\nEnd Script!\n{'#'*50}")
-    #relu_HLs-2_NEUs-2048_Adam_initLR-0.0010_finalLR-0.00010_beta1-0.90_beta2-0.999000
-    #PReLU_HLs-1_NEUs-2048_Adam_initLR-0.0010_finalLR-0.00010_beta1-0.90_beta2-0.999000
-    #tanh_HLs-1_NEUs-2048_Adam_initLR-0.0010_finalLR-0.00010_beta1-0.90_beta2-0.999000
 
-    #Best Network: relu_HLs-2_NEUs-2048_Adam_initLR-0.0010_finalLR-0.00010_beta1-0.90_beta2-0.999000
+    #relu_HLs-2_NEUs-2048_Adam_initLR-0.0001_finalLR-0.00001_beta1-0.88_beta2-0.998500_L1L2-0.00001
