@@ -628,85 +628,24 @@ def createAugmPatLvDivDataframe():
         test_df.to_csv(f'feature-dataframes/PatLvDiv_TEST-AllFeats_{test_df.shape[1]-1}-Features_{test_df.shape[0]}-images.csv')
     
     p0 = multiprocessing.Process(name='train_AugmPatLvDiv', target=createTrainDataframe)
-    #p1 = multiprocessing.Process(name='valid_AugmPatLvDiv',target=createValidDataframe)
-    #p2 = multiprocessing.Process(name='test_PatLvDiv',target=createTestDataframe)
+    p1 = multiprocessing.Process(name='valid_AugmPatLvDiv',target=createValidDataframe)
+    p2 = multiprocessing.Process(name='test_PatLvDiv',target=createTestDataframe)
     p0.start()
-    #p1.start()
-    #p2.start()
+    p1.start()
+    p2.start()
     p0.join()
-    #p1.join()
-    #p2.join()
+    p1.join()
+    p2.join()
 
 
 
 if __name__ == '__main__':
-    p0 = multiprocessing.Process(name='AugmPatLvDiv', target=createAugmPatLvDivDataframe)
-    p0.start()
-    p0.join()
+    #p0 = multiprocessing.Process(name='AugmPatLvDiv', target=createAugmPatLvDivDataframe)
+    #p0.start()
+    #p0.join()
+    
+    #feats = extract_TEXT_FeatureDict(Path('data/augm_patLvDiv_train/AugmentedImg_1002_UID_H14_6_3_hem.bmp'))
+    #feats = extract_FOF_FeatureDict(Path('data/augm_patLvDiv_train/AugmentedImg_1002_UID_H14_6_3_hem.bmp'))
+    #feats = extract_MORPH_FeatureDict(Path('data/augm_patLvDiv_train/AugmentedImg_1002_UID_H14_6_3_hem.bmp'))
+    #print(len(feats))
     print(f"\nEnd Script!\n{'#'*50}")
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    """
-
-    from matplotlib import pyplot as plt
-    imgPath = augm_patLvDiv_train / 'AugmentedImg_4055_UID_H2_6_2_hem.bmp'
-    img = readImage(imgPath,color='gray')
-    getContourSignature(img, sizeVector=320)
-    print(f"\nEnd Script!\n{'#'*50}")
-
-
-
-    #img = readImage(Path('data/augm_patLvDiv_train/AugmentedImg_1001_UID_H23_10_1_hem.bmp'), color='gray')
-    #img = readImage(Path('data/augm_patLvDiv_train/AugmentedImg_1002_UID_H14_6_3_hem.bmp'), color='gray')
-    #img = readImage(Path('data/augm_patLvDiv_train/AugmentedImg_1003_UID_45_25_3_all.bmp'), color='gray')
-    #img = readImage(Path('data/augm_patLvDiv_train/AugmentedImg_1003_UID_H12_15_7_hem.bmp'), color='gray')
-    #img = readImage(Path('data/augm_patLvDiv_train/AugmentedImg_1003_UID_H22_17_7_hem.bmp'), color='gray')
-    #img = readImage(Path('data/augm_patLvDiv_train/AugmentedImg_1003_UID_H22_28_1_hem.bmp'), color='gray')
-    img = readImage(Path('data/augm_patLvDiv_train/AugmentedImg_1005_UID_H10_129_1_hem.bmp'), color='gray')
-
-    from matplotlib import pyplot as plt
-    #plt.imshow(img, cmap='gray')
-    #plt.show()
-    #getContourSignature(img, sizeVector=320)
-    
-    
-    #Compute DCT transform
-    img = np.array(img, dtype=np.float32)
-    dctFeats = cv2.dct(img)
-    #Thank's to https://stackoverflow.com/questions/50445847/how-to-zigzag-order-and-concatenate-the-value-every-line-using-python
-    zigzagPattern = np.concatenate([np.diagonal(dctFeats[::-1,:], i)[::(2*(i % 2)-1)] for i in range(1-dctFeats.shape[0], dctFeats.shape[0])])
-    zigzagPattern = zigzagPattern[0:1024]
-    
-    zigzagPattern = zigzagPattern.tolist()
-
-    plt.subplot(311)
-    plt.plot(zigzagPattern)
-    plt.title('No_Log-Normalized dct', fontname='Times New Roman', fontsize=18)
-
-    zigzagPattern = list(map(abs, zigzagPattern))
-
-    plt.subplot(312)
-    plt.plot(np.log(zigzagPattern))
-    plt.title('Normal_Log-Normalized dct', fontname='Times New Roman', fontsize=18)
-
-    plt.subplot(313)
-    plt.plot(np.log10(zigzagPattern))
-    plt.title('Log_10-Normalized dct', fontname='Times New Roman', fontsize=18)
-
-    plt.show()
-    """

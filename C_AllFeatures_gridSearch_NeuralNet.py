@@ -93,7 +93,7 @@ if __name__ == '__main__':
                 #opt = optimizers.Adam(lr=initLR, beta_1=b1, beta_2=b2, amsgrad=False)
                 adamRuns.append(('Adam', runName, initLR, b1, b2, finalLR))
 
-    optsList = adamRuns + adaDeltaRuns + sgdRuns
+    optsList = adamRuns #+ adaDeltaRuns + sgdRuns
 
     ###########################################################################################################################################
     #                                                                                                                                         #
@@ -146,21 +146,6 @@ if __name__ == '__main__':
     x_train, y_train, x_valid, y_valid = prepareData(train_df=train_df, valid_df=valid_df)
     
     print('Done Read Train and Validation data!')
-
-    #Load PCA reduction Matrix
-    pca = None
-    with open(Path('feature-dataframes/PCA_ReductionMatrix_ExplainedVariance-0.95_1387-TO-951.pkl'), 'rb') as f:
-        pca = pickle.load(f)
-    
-    print('PCA reducing input data dimensionality...')
-    x_train = pca.transform(x_train)
-    x_valid = pca.transform(x_valid)
-    print('Input data dimensionality reduced!')
-
-    scaler = StandardScaler()
-    scaler.fit(x_train)
-    x_train = scaler.transform(x_train)
-    x_valid = scaler.transform(x_valid)
     
 
     ######################################################################################################
@@ -269,6 +254,7 @@ if __name__ == '__main__':
                     K.clear_session()
 
     print(f"\nEnd Script!\n{'#'*50}")
+    
     #relu_HLs-2_NEUs-2048_Adam_initLR-0.0010_finalLR-0.00010_beta1-0.90_beta2-0.999000
     #PReLU_HLs-1_NEUs-2048_Adam_initLR-0.0010_finalLR-0.00010_beta1-0.90_beta2-0.999000
     #tanh_HLs-1_NEUs-2048_Adam_initLR-0.0010_finalLR-0.00010_beta1-0.90_beta2-0.999000

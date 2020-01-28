@@ -441,7 +441,7 @@ def folderData(folderPath):
 if __name__ == '__main__':
     #createDatasets(trainSize=40000, validationSize=10000)
     #folderData(Path('data/augm_patLvDiv_train/'))
-    folderData(Path('data/augm_patLvDiv_valid/'))
+    #folderData(Path('data/augm_patLvDiv_valid/'))
     #folderData(Path('data/patLvDiv_test/'))
     #30000 = 25Gb
     #40000 = 31Gb
@@ -483,77 +483,3 @@ if __name__ == '__main__':
     """
 
     print(f"\nEnd Script!\n{'#'*50}")
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-"""
-    import matplotlib.pyplot as plt
-    sample = Path('train/fold_1/all/UID_2_5_3_all.bmp')
-    srcImg = cv2.imread(str(sample))
-    srcImg = shearImage(srcImg, s=(0.2, 0.3))
-    plt.imshow(srcImg)
-    plt.show()
-    quit()
-
-    srcImg = srcImg[90:360,90:360,:]
-    srcImg = cv2.cvtColor(srcImg, cv2.COLOR_BGR2RGB)
-    flipRot = cv2.flip(srcImg, 1)
-    height, width, _ = flipRot.shape
-    rotationMatrix = cv2.getRotationMatrix2D((width/2,height/2), 30 ,1)
-    flipRot = cv2.warpAffine(flipRot, rotationMatrix,(width, height))
-    shearImg, _ = shearImage(flipRot, s=(0.2, 0.25))
-    spImg = saltPepperNoise(flipRot, salt_vs_pepper=0.50, amount = 0.01)
-
-
-    
-    fig=plt.figure()
-
-    fig.add_subplot(1, 4, 1)
-    plt.imshow(srcImg)
-    plt.title('Source Image')
-    fig.add_subplot(1, 4, 2)
-    plt.imshow(flipRot)
-    plt.title('Flip + Rotation')
-    fig.add_subplot(1, 4, 3)
-    plt.imshow(shearImg)
-    plt.title('Flip + Rotation + Shear Transformation')
-    fig.add_subplot(1, 4, 4)
-    plt.imshow(spImg)
-    plt.title("Flip + Rotation + Salt'nPepper noise")
-    
-    plt.show()
-
-
-    05 dias: segunda 09/12/2019 à sexta 13/12/2019
-    05 dias: segunda 16/12/2019 à sexta 20/12/2019
-
-    24/12/2019 à 01/01/2020: Recesso natalino
-
-    05 dias: segunda 06/01/2020 à sexta 10/01/2020
-    05 dias: segunda 13/01/2020 à sexta 17/01/2019
-    05 dias: segunda 20/01/2020 à sexta 24/01/2019
-    05 dias: segunda 27/01/2020 à sexta 31/01/2020
-    05 dias: segunda 03/02/2020 à sexta 07/02/2020
-
-    35 dias
-
-"""

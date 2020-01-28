@@ -133,7 +133,7 @@ if __name__ == '__main__':
 
     #relu_HLs-2_NEUs-2048_Adam_initLR-0.0001_finalLR-0.00001_beta1-0.88_beta2-0.998500_L1L2-0.00001
     print(model.summary())
-
+    quit()
     #Learning rate decay - Update Learning rate
     def LR_decay(epoch):
         decayRate = (1/MAX_EPOCHS)*np.log(LR_AT_MAX_EPOCH/LR_AT_EPOCH0)
